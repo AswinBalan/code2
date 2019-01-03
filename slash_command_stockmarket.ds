@@ -1,0 +1,75 @@
+
+response = Map();
+card = Map();
+symbol = options.get("s");
+type = options.get("type");
+//validating user input
+if(symbol == "" ||  type =="")
+{
+	return {"text":"please fill the required options"};
+}
+info symbol;
+//calling Alphavantage API
+
+company_name = getUrl("https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=" + symbol + "&apikey=1TGAGJW7QI6A1T97",true);
+info company_name;
+name_list = company_name.get("bestMatches");
+//Storing the details of the company if the returned JSON has a valid response
+if(name_list.size() != 0)
+{
+	symbol = name_list.get(0).get("1. symbol");
+	name = name_list.get(0).get("2. name");
+	region = name_list.get(0).get("4. region");
+	currency = name_list.get(0).get("8. currency");
+	score = name_list.get(0).get("9. matchScore");
+	timezone = name_list.get(0).get("7. timezone");
+}
+//filling default values if the values do not exits
+else
+{
+	name = "NIL";
+	region = "NIL";
+	currency = "NIL";
+	score = "NIL";
+	timezone = "NIL";
+}
+// API call for daily prices
+
+if(type.equalsIgnoreCase("daily"))
+{
+	resp = getUrl("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + symbol + "&apikey=1TGAGJW7QI6A1T97",true);
+}
+//weekly
+else if(type.equalsIgnoreCase("weekly"))
+{
+	resp = getUrl("https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=" + symbol + "&apikey=1TGAGJW7QI6A1T97",true);
+}
+//monthly
+
+else if(type.equalsIgnoreCase("monthly"))
+{
+	resp = getUrl("https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=" + symbol + "&apikey=1TGAGJW7QI6A1T97",true);
+}
+//intraday - for each 5 minutes
+else if(type.equalsIgnoreCase("intraday"))
+{
+	resp = getUrl("https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=" + symbol + "&interval=5min&apikey=1TGAGJW7QI6A1T97",true);
+}
+info resp;
+info company_name;
+
+info resp;
+output = Map();
+main = resp.keys();
+//info main;
+type_key = main.get(1);
+output = resp.get(type_key);
+//info output;
+symbol_name = resp.get("Meta Data").get("2. Symbol");
+key_list = output.keys();
+//info key_list;
+//PRINTING THE VALUES IN A CARD
+card = {"card":{"theme":"modern-inline"},"slides":{{"type":"label","title":"Company details","data":{{"_Company Name_":name},{"Region":region},{"Currency":currency},{"matchScore":score},{"time zone":timezone}}},{"type":"text","title":"`" + resp.get("Meta Data").get("1. Information") + "`","data":"_LAST REFRESHED_ :  _* " + resp.get("Meta Data").get("3. Last Refreshed") + "*_"},{"type":"list","title":"`" + key_list.get(0) + "`","data":{"_Open_ - " + output.get(key_list.get(0)).get("1. open"),"_High_ - " + output.get(key_list.get(0)).get("2. high"),"_Low_ - " + output.get(key_list.get(0)).get("3. low"),"_Close_ - " + output.get(key_list.get(0)).get("4. close"),"_Volume_ - " + output.get(key_list.get(0)).get("5. volume")}},{"type":"list","title":"`" + key_list.get(1) + "`","data":{"_Open_ - " + output.get(key_list.get(1)).get("1. open"),"_High_ - " + output.get(key_list.get(1)).get("2. high"),"_Low_ - " + output.get(key_list.get(1)).get("3. low"),"_Close_ - " + output.get(key_list.get(1)).get("4. close"),"_Volume_ - " + output.get(key_list.get(1)).get("5. volume")}},{"type":"list","title":"`" + key_list.get(2) + "`","data":{"_Open_ - " + output.get(key_list.get(2)).get("1. open"),"_High_ - " + output.get(key_list.get(2)).get("2. high"),"_Low_ - " + output.get(key_list.get(2)).get("3. low"),"_Close_ - " + output.get(key_list.get(2)).get("4. close"),"_Volume_ - " + output.get(key_list.get(2)).get("5. volume")}},{"type":"list","title":"`" + key_list.get(3) + "`","data":{"_Open_ - " + output.get(key_list.get(3)).get("1. open"),"_High_ - " + output.get(key_list.get(3)).get("2. high"),"_Low_ - " + output.get(key_list.get(3)).get("3. low"),"_Close_ - " + output.get(key_list.get(3)).get("4. close"),"_Volume_ - " + output.get(key_list.get(3)).get("5. volume")}},{"type":"list","title":"`" + key_list.get(4) + "`","data":{"_Open_ - " + output.get(key_list.get(4)).get("1. open"),"_High_ - " + output.get(key_list.get(4)).get("2. high"),"_Low_ - " + output.get(key_list.get(4)).get("3. low"),"_Close_ - " + output.get(key_list.get(4)).get("4. close"),"_Volume_ - " + output.get(key_list.get(4)).get("5. volume")}}},"text":"_*PRICES AND VOULUMES OF*_ - " + "`" + symbol_name + "`"};
+
+//RETURING THE CARD IN THE USER WINDOW
+return card;
